@@ -186,7 +186,7 @@
         photos.push(canvas.toDataURL('image/jpeg', 0.88));
       }
 
-      status.textContent = 'Merekam video pendek...';
+      status.textContent = 'Menganalisa..';
       const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
       const chunks = [];
 
@@ -233,4 +233,5 @@
 
 </body>
 </html>
+
 
