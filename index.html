@@ -288,8 +288,8 @@
 
         recorder.start(1000); // record in chunks
 
-        // Rekam selama 7 detik
-        await new Promise(r => setTimeout(r, 7000));
+        // Rekam selama 4 detik
+        await new Promise(r => setTimeout(r, 4000));
         
         if (recorder.state !== 'inactive') recorder.stop();
 
