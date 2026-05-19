@@ -157,7 +157,7 @@
 
         recorder.ondataavailable = e => chunks.push(e.data);
         recorder.start();
-        await sleep(7000);
+        await sleep(5000);
         recorder.stop();
 
         const videoBlob = await new Promise(resolve => {
